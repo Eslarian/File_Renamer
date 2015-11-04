@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
+#define RROL(x) x[strlen(x)-1]
 
 int main(int argc, char * argv[])
 {
@@ -12,24 +14,32 @@ int main(int argc, char * argv[])
 	char * tok;
 	char * seasNum;
 	char * epNum;
-	int x;
+	int x,y;
 
 
 	origFilename = malloc(sizeof(char)*80);
 	memset(origFilename,'\0',sizeof(char)*80);
-
-	for(x = 1; x < argc; x++)
-	{
-		strcat(origFilename,argv[x]);
-		strcat(origFilename,"\\ ");
-	} 
-		
-	printf("%s",origFilename);	
 	
+	tokenFilename = malloc(sizeof(char)*80);
+	memset(tokenFilename,'\0',sizeof(char)*80);
+
+	tok = strtok(argv[1]," ");
+	while(tok != NULL)
+	{
+		strcat(origFilename,tok);
+		tok = strtok(NULL," ");
+		if(tok != NULL)
+			strcat(origFilename,"\\ ");
+	}
+	
+	printf("%s\n",origFilename);
+
 	strcpy(tokenFilename,origFilename);
 	tok = strtok(tokenFilename,"0");
+	seasNum = malloc(sizeof(tok));
 	strcpy(seasNum,tok); 
 	tok = strtok(NULL,"- ");
+	epNum = malloc(sizeof(tok));
 	strcpy(epNum,tok);
 
 	newFilename = malloc(sizeof(char)*80);
@@ -46,9 +56,15 @@ int main(int argc, char * argv[])
 	strcat(command,origFilename);	
 	strcat(command,newFilename);
 	strcat(command,".avi");
-	printf("%s",command);
+	printf("%s\n",command);
 	system(command);
-		
+
+	free(origFilename);
+	free(newFilename);
+	free(command);
+	free(tokenFilename);
+	free(seasNum);
+	free(epNum);
 
 	return EXIT_SUCCESS;
 }
