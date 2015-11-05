@@ -2,69 +2,69 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "tinydir.h"
+
+#define COLOR_ERROR	"\x1b[1;31m"	// red 
+#define COLOR_RESET "\x1b[0m"      //reset
 
 #define RROL(x) x[strlen(x)-1]
 
 int main(int argc, char * argv[])
 {
-	char * origFilename;
-	char * newFilename;
-	char * tokenFilename;
 	char * command;
-	char * tok;
+	char * fileName;
+	char * fileExtension;
 	char * seasNum;
-	char * epNum;
-	int x,y;
+	char epNum[3];
+	int x;
 
+	tinydir_dir dir;
+	tinydir_file file;
 
-	origFilename = malloc(sizeof(char)*80);
-	memset(origFilename,'\0',sizeof(char)*80);
-	
-	tokenFilename = malloc(sizeof(char)*80);
-	memset(tokenFilename,'\0',sizeof(char)*80);
-
-	tok = strtok(argv[1]," ");
-	while(tok != NULL)
+	//I like terminal colors 
+	if(argc != 4)
 	{
-		strcat(origFilename,tok);
-		tok = strtok(NULL," ");
-		if(tok != NULL)
-			strcat(origFilename,"\\ ");
-	}
+		fprintf(stderr,"%sUsage: ./Renamer path/to/show/",COLOR_ERROR);
+		fprintf(stderr,"Show\\ Name seasonNumber\n%s",COLOR_RESET);
+		return EXIT_FAILURE;
+	} 
+
+	//Open directory of the files to be renamed
+	tinydir_open(&dir,argv[1]);
+	seasNum = argv[3];
 	
-	printf("%s\n",origFilename);
+	command = malloc(sizeof(char)*80);
+	x = 1;
+	while(dir.has_next)
+	{
+		tinydir_readfile(&dir, &file);
+		snprintf(epNum,3,"%d",x);	
+		fileName = file.name;
+		fileExtension = file.extension;	
+		 
+		memset(command,'\0',sizeof(char)*80);
 
-	strcpy(tokenFilename,origFilename);
-	tok = strtok(tokenFilename,"0");
-	seasNum = malloc(sizeof(tok));
-	strcpy(seasNum,tok); 
-	tok = strtok(NULL,"- ");
-	epNum = malloc(sizeof(tok));
-	strcpy(epNum,tok);
+		strcat(command,"mv ");
+		strcat(command,argv[1]);
+		strcat(command,file.name);
+		strcat(command,"/ ");
+		strcat(command,argv[2]);
+		strcat(command," - ");
+		strcat(command,"S");
+		strcat(command,seasNum);
+		strcat(command,"E");
+		strcat(command,epNum);
+		strcat(command,".");
+		strcat(command,fileExtension);
+	
+		tinydir_next(&dir);
+		x++; 
+		printf("%s\n",command);
+		//system(command);
+	} 
 
-	newFilename = malloc(sizeof(char)*80);
-	memset(newFilename,'\0',sizeof(char)*80);
-	strcat(newFilename," Courage\\ The\\ Cowardly\\ Dog-");
-	strcat(newFilename,"s0");
-	strcat(newFilename,seasNum);
-	strcat(newFilename,"e");
-	strcat(newFilename,epNum);
-
-	command = malloc(sizeof(char)*80); 
-	memset(command,'\0',sizeof(char)*80);
-	strcat(command,"mv ");
-	strcat(command,origFilename);	
-	strcat(command,newFilename);
-	strcat(command,".avi");
-	printf("%s\n",command);
-	system(command);
-
-	free(origFilename);
-	free(newFilename);
-	free(command);
-	free(tokenFilename);
-	free(seasNum);
-	free(epNum);
-
+	tinydir_close(&dir);
+	free(command);	
+	
 	return EXIT_SUCCESS;
 }

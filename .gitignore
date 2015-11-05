@@ -1,1 +1,6 @@
 *.avi
+*.swp
+*.swo
+*.exe
+*.stackdump
+Fakeshow
