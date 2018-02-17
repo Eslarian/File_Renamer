@@ -22,8 +22,7 @@ int main(int argc, char * argv[])
 	tinydir_file file;
 
 	//I like terminal colors 
-	if(argc != 4)
-	{
+	if(argc != 4) {
 		fprintf(stderr,"%sUsage: ./Renamer path/to/show/",COLOR_ERROR);
 		fprintf(stderr,"Show\\ Name seasonNumber\n%s",COLOR_RESET);
 		return EXIT_FAILURE;
@@ -35,9 +34,16 @@ int main(int argc, char * argv[])
 	
 	command = malloc(sizeof(char)*80);
 	x = 1;
-	while(dir.has_next)
-	{
+
+	while(dir.has_next) {
 		tinydir_readfile(&dir, &file);
+		
+		if (file.name[0] == '.') {
+			printf("skipping \"%s\"", file.name);
+			tinydir_next(&dir);
+			continue;
+		}
+
 		snprintf(epNum,3,"%d",x);	
 		fileName = file.name;
 		fileExtension = file.extension;	
